@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#111827">
+<title>سامانه گزینش</title>
+<style>
+:root{color-scheme:dark;--bg:#0b1020;--card:#151d30;--line:#293650;--text:#f4f6fb;--muted:#aab5c8;--gold:#e5b85c;--blue:#5279d8}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at top,#1b2943 0,#0b1020 55%);font-family:Tahoma,Arial,sans-serif;color:var(--text);min-height:100vh;padding:26px 14px}
+main{max-width:620px;margin:0 auto}
+header{text-align:center;padding:20px 10px 24px}
+.badge{display:inline-block;border:1px solid #66532e;color:var(--gold);padding:7px 14px;border-radius:30px;font-size:12px;letter-spacing:.2px}
+h1{font-size:28px;margin:17px 0 8px}
+.sub{color:var(--muted);font-size:14px;line-height:1.9;margin:0}
+.panel{background:linear-gradient(145deg,rgba(25,35,56,.98),rgba(17,25,42,.98));border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:0 18px 55px #0005}
+h2{font-size:17px;margin:0 0 18px;color:var(--gold)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.field{display:flex;flex-direction:column;gap:8px}
+.field.full{grid-column:1/-1}
+label{font-size:13px;color:#d7deeb}
+input,select,textarea{width:100%;border:1px solid #34435e;border-radius:10px;background:#0d1526;color:var(--text);padding:13px;font:14px Tahoma,Arial;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px #e5b85c18}
+textarea{resize:vertical;min-height:78px}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px}
+button{border:0;border-radius:11px;padding:14px 12px;font: bold 14px Tahoma,Arial;cursor:pointer}
+.primary{background:linear-gradient(135deg,#e8c477,#c9963e);color:#1b1a16}
+.secondary{background:#263550;color:#f2f5fb;border:1px solid #3a4b68}
+button:disabled{opacity:.45;cursor:not-allowed}
+.status{display:none;margin-top:14px;padding:12px;border-radius:10px;background:#102d28;color:#a8f0d4;font-size:13px;line-height:1.8}
+.note{font-size:12px;color:var(--muted);line-height:1.8;margin:16px 2px 0}
+.locked{display:none;text-align:center;padding:22px;line-height:2;color:#f4d58e}
+@media(max-width:480px){.grid{grid-template-columns:1fr}.field.full{grid-column:auto}.actions{grid-template-columns:1fr}h1{font-size:24px}.panel{padding:18px}}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <span class="badge">سامانه ثبت شخصیت</span>
+  <h1>فرم گزینش</h1>
+  <p class="sub">مشخصات شخصیتت را وارد کن و برای سازنده بفرست.</p>
+</header>
+
+<section class="panel" id="formPanel">
+  <h2>اطلاعات گزینش</h2>
+  <form id="selectionForm">
+    <div class="grid">
+      <div class="field">
+        <label for="name">نام شخصیت</label>
+        <input id="name" name="name" maxlength="35" required placeholder="نام را وارد کن">
+      </div>
+      <div class="field">
+        <label for="gender">جنسیت</label>
+        <select id="gender" name="gender" required>
+          <option value="">انتخاب کن</option><option>مرد</option><option>زن</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="age">سن</label>
+        <input id="age" name="age" type="number" min="1" max="100" required placeholder="سن">
+      </div>
+      <div class="field">
+        <label for="origin">زادگاه</label>
+        <input id="origin" name="origin" maxlength="40" required placeholder="مثلاً پارس">
+      </div>
+      <div class="field full">
+        <label for="role">جایگاه یا پیشه</label>
+        <select id="role" name="role" required>
+          <option value="">انتخاب کن</option>
+          <option>کشاورز</option><option>بازرگان</option><option>سرباز</option>
+          <option>هنرمند</option><option>دانشمند</option><option>اشراف‌زاده</option>
+          <option>پیشه‌ور</option><option>گزینه دیگر</option>
+        </select>
+      </div>
+      <div class="field full">
+        <label for="details">توضیحات کوتاه (اختیاری)</label>
+        <textarea id="details" name="details" maxlength="250" placeholder="اگر توضیحی داری بنویس..."></textarea>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="primary" type="submit">ثبت و ارسال برای سازنده</button>
+      <button class="secondary" type="button" id="copyBtn">کپی مشخصات</button>
+    </div>
+    <div class="status" id="status" role="status"></div>
+  </form>
+  <p class="note">پس از ثبت، امکان ساخت شخصیت تازه در همین مرورگر بسته می‌شود. دکمه ارسال، برگه اشتراک‌گذاری دستگاه را باز می‌کند تا مقصد را خودت انتخاب کنی.</p>
+</section>
+
+<section class="panel locked" id="lockedPanel">
+  <h2>شخصیت ثبت‌شده</h2>
+  <p>مشخصاتت ذخیره شده است. برای دیدن یا فرستادن آن از دکمه‌های زیر استفاده کن.</p>
+  <pre id="savedProfile" style="white-space:pre-wrap;text-align:right;background:#0d1526;border:1px solid #34435e;border-radius:10px;padding:14px;line-height:2;font:14px Tahoma,Arial"></pre>
+  <div class="actions">
+    <button class="primary" type="button" id="sendSavedBtn">ارسال مشخصات برای سازنده</button>
+    <button class="secondary" type="button" id="viewSavedBtn">مشاهده مشخصات</button>
+  </div>
+  <div class="status" id="savedStatus" role="status"></div>
+</section>
+</main>
+<script>
+const form = document.getElementById('selectionForm');
+const statusBox = document.getElementById('status');
+const formPanel = document.getElementById('formPanel');
+const lockedPanel = document.getElementById('lockedPanel');
+const STORAGE_KEY = 'selection_profile_submitted_v1';
+
+function profileText(){
+  const data = new FormData(form);
+  const labels = {name:'نام شخصیت',gender:'جنسیت',age:'سن',origin:'زادگاه',role:'جایگاه یا پیشه',details:'توضیحات'};
+  return [...data.entries()].map(([key,value]) => `${labels[key]}: ${String(value).trim() || '—'}`).join('\n');
+}
+function showStatus(message){
+  statusBox.textContent = message;
+  statusBox.style.display = 'block';
+}
+function showSavedStatus(message){
+  const box = document.getElementById('savedStatus');
+  box.textContent = message;
+  box.style.display = 'block';
+}
+function valid(){
+  if(!form.reportValidity()) return false;
+  const age = Number(document.getElementById('age').value);
+  if(!Number.isInteger(age) || age < 1 || age > 100){
+    showStatus('سن باید عددی بین ۱ تا ۱۰۰ باشد.'); return false;
+  }
+  return true;
+}
+async function copyText(text, saved=false){
+  try{
+    await navigator.clipboard.writeText(text);
+    saved ? showSavedStatus('مشخصات کپی شد.') : showStatus('مشخصات با موفقیت کپی شد.');
+  }catch(e){
+    const area=document.createElement('textarea'); area.value=text;
+    document.body.appendChild(area); area.select();
+    const ok=document.execCommand('copy'); area.remove();
+    const message = ok ? 'مشخصات کپی شد.' : 'کپی خودکار ممکن نشد؛ متن را دستی انتخاب و کپی کن.';
+    saved ? showSavedStatus(message) : showStatus(message);
+  }
+}
+function getSavedProfile(){
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null'); }
+  catch(e) { return null; }
+}
+function displaySavedProfile(){
+  const saved = getSavedProfile();
+  if(!saved || !saved.profile) return false;
+  formPanel.style.display='none';
+  lockedPanel.style.display='block';
+  document.getElementById('savedProfile').textContent=saved.profile;
+  return true;
+}
+async function shareProfile(text){
+  if(navigator.share){
+    try {
+      await navigator.share({title:'مشخصات شخصیت', text});
+      showSavedStatus('برگه اشتراک‌گذاری باز شد؛ مقصد ارسال را انتخاب کن.');
+    } catch(err) {
+      showSavedStatus('ارسال لغو شد. هر زمان خواستی دوباره دکمه ارسال را بزن.');
+    }
+  } else {
+    await copyText(text, true);
+    showSavedStatus('متن کپی شد؛ آن را برای سازنده بفرست.');
+  }
+}
+document.getElementById('copyBtn').addEventListener('click',()=>{
+  if(valid()) copyText(profileText());
+});
+form.addEventListener('submit', e=>{
+  e.preventDefault();
+  if(getSavedProfile()){
+    displaySavedProfile(); return;
+  }
+  if(!valid()) return;
+  const text = profileText();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({profile:text, savedAt:new Date().toISOString()}));
+  displaySavedProfile();
+  showSavedStatus('مشخصات ثبت و در این مرورگر ذخیره شد. برای ارسال، دکمه ارسال را بزن.');
+});
+document.getElementById('viewSavedBtn').addEventListener('click',()=>{
+  const saved=getSavedProfile();
+  if(saved) {
+    const pre=document.getElementById('savedProfile');
+    pre.style.display = pre.style.display === 'none' ? 'block' : 'none';
+    document.getElementById('viewSavedBtn').textContent = pre.style.display === 'none' ? 'مشاهده مشخصات' : 'بستن مشخصات';
+  }
+});
+document.getElementById('sendSavedBtn').addEventListener('click',()=>{
+  const saved=getSavedProfile();
+  if(saved && saved.profile) shareProfile(saved.profile);
+});
+if(!displaySavedProfile()){
+  formPanel.style.display='block';
+  lockedPanel.style.display='none';
+}
+</script>
+</body>
+</html>
